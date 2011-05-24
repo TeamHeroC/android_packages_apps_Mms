@@ -873,5 +873,9 @@
     <string name="dialog_phone_goggles_unauthorized">Sending a SMS may not be wise at this time.</string>
     <string name="dialog_phone_goggles_ok">Send</string>
     <string name="dialog_phone_goggles_cancel">Save draft</string>
+
+    <!-- Toggle setting for enable/disable 9016 notifications -->
+    <string name="pref_title_mms_9016_notification">9016 Notifications</string>
+    <string name="pref_summary_mms_9016_notification">Disables notifications from 9016 (voicemail and system notifications)</string>
 </resources>
 

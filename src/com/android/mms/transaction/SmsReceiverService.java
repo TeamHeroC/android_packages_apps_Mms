@@ -26,6 +26,7 @@ import android.preference.PreferenceManager;
 import com.android.mms.ui.MessagingPreferenceActivity;
 import com.android.mms.data.Contact;
 import com.android.mms.ui.ClassZeroActivity;
+import com.android.mms.ui.MessagingPreferenceActivity;
 import com.android.mms.util.Recycler;
 import com.android.mms.util.SendingProgressTokenManager;
 import com.google.android.mms.MmsException;
@@ -39,6 +40,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
@@ -47,6 +49,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
+import android.preference.PreferenceManager;
 import android.provider.Telephony.Sms;
 import android.provider.Telephony.Threads;
 import android.provider.Telephony.Sms.Inbox;
@@ -76,7 +79,9 @@ public class SmsReceiverService extends Service {
     private ServiceHandler mServiceHandler;
     private Looper mServiceLooper;
     private boolean mSending;
-
+    private boolean mDisableNotification;
+    private SharedPreferences mPrefs;
+    
     public static final String MESSAGE_SENT_ACTION =
         "com.android.mms.transaction.MESSAGE_SENT";
 
@@ -120,6 +125,9 @@ public class SmsReceiverService extends Service {
         HandlerThread thread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
         thread.start();
 
+		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		mDisableNotification = mPrefs.getBoolean(MessagingPreferenceActivity.VOICEMAIL_NOTIFICATION, false);
+        
         mServiceLooper = thread.getLooper();
         mServiceHandler = new ServiceHandler(mServiceLooper);
     }
@@ -378,6 +386,8 @@ public class SmsReceiverService extends Service {
             return null;
         } else if (sms.isReplace()) {
             return replaceMessage(context, msgs, error);
+        } else if (sms.getOriginatingAddress().contentEquals("9016") && mDisableNotification) {
+      		return null;
         } else {
             return storeMessage(context, msgs, error);
         }
